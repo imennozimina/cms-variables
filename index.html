@@ -1,357 +1,1459 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Currencies Variables</title>
-    <link rel="icon" type="image/png" href="img/currency3.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Валютный тул: Турниры / Промо</title>
+<link rel="icon" type="image/png" href="img/edit3.png">
+<style>
+  :root{
+    --bg:#523634; --ink:#2f3e46; --paper:#DDC5A2; --line:#1f2e2d; --frame:#301B28;
+    --btn:#52958b; --btn-hover:#004d47; --btn-ready:#c96666; --btn-ready-hover:#991a1a;
+    --focus:#00c2a8; --muted:#00000055;
+  }
+  body { font-family: Arial, sans-serif; background-color: var(--bg); color: var(--ink); padding: 20px; gap: 20px; }
+  .flex-horiz { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+  .top-toolbar, .btm-toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
+  .textAreas { display: grid; grid-template-columns: 1fr; gap: 12px; width: 50%; }
+  .textAreas.double { grid-template-columns: 1fr 1fr; }
+  .text-wrap { position: relative; }
+  .text-wrap.active::after{
+    content:"active"; position: absolute; top:6px; right:10px; font-size:12px; color:#000; background:#ffd; padding:2px 6px; border-radius:8px; border:1px solid #00000033;
+  }
+  textarea {
+    width: 100%; height: 300px; border: 2px solid var(--line); border-radius: 5px; padding: 10px;
+    background-color: var(--paper); color: var(--line); font-size: 16px; white-space: pre; resize: vertical; outline: none;
+  }
+  .text-wrap { margin-right: 30px;}
+  .text-wrap.active textarea { border-color: var(--focus); box-shadow: 0 0 0 3px #00c2a82a; }
+  button { padding: 10px 20px; background-color: var(--btn); color: #000; border: none; border-radius: 5px; cursor: pointer; }
+  button:hover { background-color: var(--btn-hover); color: #fff; }
+  button.ready { background-color: var(--btn-ready); }
+  button.ready:hover { background-color: var(--btn-ready-hover); }
+  button.ghost { background: transparent; border: 2px solid var(--btn); color: #fff; }
+  button.ghost:hover { background: var(--btn-hover); border-color: var(--btn-hover); }
+  input.custom-text, input.promo-input, input.promo-var {
+    border: 2px solid var(--line); border-radius: 5px; padding: 1px 10px; height: 35px;
+    background-color: var(--paper); color: var(--line); font-size: 16px; outline: none;
+  }
+textarea.promo-input.promo-values {
+  width: 100%;
+  min-height: 42px;
+  max-height: 120px;
+  resize: vertical;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
+}
+  input.promo-var { width: 220px; }
+  .tournament-result-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            padding: 20px;
-        }
-        h1 {
-            color: #451d59;
-        }
-        .form-section {
-            margin: 10px;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .form-section h3 {
-            margin-top: 0;
-            color: #3cbfa0;
-        }
-        .input-row input:first-child {
-            width: 20%;
-            text-transform: uppercase;
-        }
-        .input-row input:last-child {
-            width: 70%;
-            margin-left: 30px;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-        input[type="text"], textarea {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            background-color: #3cbfa0;
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-right: 10px;
-            margin-left: 10px;
-        }
-        button:hover {
-            background-color: #66e8e6;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        table, th, td {
-            border: 1px solid #ccc;
-        }
-        table tr>td:first-child {
-            text-transform: uppercase;
-        }
+#tableContainer table { user-select: none; }
+#tableContainer td.sel, #tableContainer th.sel { background: rgba(0, 0, 0, 0.08); }
+#tableContainer td.sel, #tableContainer th.sel { outline: 2px solid rgba(0,0,0,0.35); outline-offset: -2px; }
 
-        th, td {
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #736cba;
-            color: #fff;
-        }
-        .currency-columns {
-            display: flex;
-            justify-self: stretch;
-            margin-top: 20px;
-        }
-        .currency-column {
-            flex: 1;
-            margin-right: 30px;
-            width: 60px;
-        }
-        .currency-column textarea {
-            height: 100px;
-        }
-    </style>
+#tableContainer td,
+#tableContainer th{
+  white-space: nowrap;
+  vertical-align: top;
+}
+  .custom-history-bar{
+  margin-top:8px;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+#customHistory{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+
+.history-item{
+  background:#8fa1a3;
+  padding:4px 10px;
+  border-radius:6px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:13px;
+}
+
+.history-item:hover{
+  background:#6c8082;
+}
+
+.history-delete{
+  color:#ff3b3b;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.reset-history{
+  background:#c33;
+  color:#fff;
+}
+
+.reset-history:hover{
+  background:#900;
+}
+button.ghost {
+  padding: 10px 15px;
+}
+button.mult {
+  background-color: #929DF7;
+}
+
+input.promo-remove-text{
+  width: 220px;
+  border: 2px solid var(--line);
+  border-radius: 5px;
+  padding: 8px 10px;
+  background-color: var(--paper);
+  color: var(--line);
+  font-size: 14px;
+  outline: none;
+}
+
+textarea.promo-values{
+  min-height:42px;
+  max-height:120px;
+}
+
+  #tableContainer, #promoTableContainer {
+    width: 40%; height: fit-content; display: none; overflow-x: auto;
+    border: 1px solid var(--frame); background-color: var(--paper); padding: 10px; border-radius: 5px;
+  }
+  table { border-collapse: collapse; width: 100%; }
+  table td, table th { border: 1px solid var(--frame); padding: 10px; text-align: left; font-weight: normal; }
+  table th { background: #00000010; }
+
+  .mode { display:flex; gap:12px; align-items:center; margin: 6px 0 12px; }
+  .mode label { color:#fff; user-select:none; }
+
+  /* App mode switch */
+  .app-switch { display:flex; gap:10px; align-items:center; margin-bottom: 12px; }
+  .app-switch .pill {
+    display:inline-flex; gap:8px; align-items:center;
+    padding: 8px 12px; border-radius: 999px; border: 2px solid #ffffff33; color:#fff;
+    background: #00000015;
+    user-select:none;
+  }
+  .app-switch input { transform: translateY(1px); }
+
+  /* Promo UI */
+  .promo-wrap { display: grid; gap: 12px; }
+  .promo-currencies { display:flex; flex-wrap: wrap; gap: 10px; }
+  .promo-currencies label{
+    display:inline-flex; gap:8px; align-items:center;
+    padding: 6px 10px; border: 1px solid #ffffff22; border-radius: 10px; color:#fff;
+    background: #00000010;
+  }
+  .promo-selected { color:#fff; font-size: 13px; opacity: 0.95; }
+  .promo-selected code{ background:#00000025; padding:2px 6px; border-radius: 6px; color:#fff; }
+
+  .promo-input-table { width: 100%; border: 1px solid #ffffff22; border-radius: 10px; padding: 12px; background: #00000010; }
+  .promo-row {
+      display:grid;
+      grid-template-columns: 240px minmax(500px, 1fr) auto;
+      gap:10px;
+      align-items:start;
+      margin-bottom:10px;
+    }
+  .promo-row .row-actions { display:flex; gap:8px; }
+  .promo-row small { color:#fff; opacity: 0.75; }
+  .promo-actions { display:flex; gap:10px; flex-wrap: wrap; align-items:center; }
+  .hint { color:#fff; opacity: 0.75; font-size: 13px; }
+  .small-muted { color:#fff; opacity: 0.72; font-size: 13px; visibility: hidden; }
+  .status { margin-left: 12px; font-size: 13px; }
+  .status.error { color: #ffb3b3; opacity: 0.95; }
+  .status.ok { color: #d4ffd4; opacity: 0.95; }
+  .promo-result-actions {margin-top: 15px;}
+
+  #promoMultiplier {    width: 125px;  }
+
+  #promoTableContainer{
+          width: 100%;
+          max-width: 100%;
+          overflow-x: auto;
+    }
+
+    #promoOutputTable{
+          width: max-content;
+          min-width: 100%;
+    }
+
+#promoOutputTable td,
+#promoOutputTable th{
+  white-space: nowrap;
+  vertical-align: top;
+  padding: 8px 10px;
+  font-size: 14px;
+}
+
+
+  /* Promo sheet-like selection */
+  #promoTableContainer table { user-select: none; }
+  #promoTableContainer td.sel, #promoTableContainer th.sel { background: rgba(0, 0, 0, 0.08); }
+  #promoTableContainer td.sel, #promoTableContainer th.sel { outline: 2px solid rgba(0,0,0,0.35); outline-offset: -2px; }
+  #promoTableContainer th.colhdr { cursor: pointer; }
+  #promoTableContainer th.rowhdr { cursor: pointer; width: 40px; text-align: right; }
+
+</style>
 </head>
 <body>
-<div class="form-section" id="form-section">
-    <div class="input-row">
-        <input type="text" id="variable-name" name="variable-name" placeholder="Name">
-        <input type="text" id="amounts" name="amounts" placeholder="€ 20 EUR / $ 20 USD / 2 000 RUB ...">
+
+<!-- Mode switch -->
+<div class="app-switch">
+  <label class="pill"><input type="radio" name="appMode" value="tournament" checked> Турниры</label>
+  <label class="pill"><input type="radio" name="appMode" value="promo"> Промо</label>
+</div>
+
+<!-- ===================== TOURNAMENT APP (existing) ===================== -->
+<div id="tournamentApp">
+  <div class="top-toolbar" id="tournamentToolbar"></div>
+
+  <div class="mode">
+    <label><input type="checkbox" id="doubleMode"> Double bonus</label>
+  </div>
+
+  <div class="flex-horiz">
+    <div id="areas" class="textAreas">
+      <div class="text-wrap active" data-key="a">
+        <textarea id="textAreaA" placeholder="Введите данные построчно..."></textarea>
+      </div>
+      <!-- Вторая колонка скрыта по умолчанию, появится при Double -->
+      <div class="text-wrap" data-key="b" style="display:none;">
+        <textarea id="textAreaB" placeholder="Вторая колонка (для double)..."></textarea>
+      </div>
     </div>
+
+    <div id="tableContainer">
+        <table id="outputTable"></table>
+        <div class="tournament-result-actions">
+       <button onclick="tournamentCopySelection()">Copy selection</button>
+    </div>
+</div></div>
+
+  <div class="btm-toolbar">
+    <button onclick="addText('Bonus Casino')">Bonus Casino</button>
+    <button onclick="addText('Bonus Sport')">Bonus Sport</button>
+    <button onclick="addText('Free Bet')">Free Bet</button>
+    <button onclick="addText('Free Spins')">Free Spins</button>
+    <button onclick="addText('Real Money')">Real Money</button>
+    <button onclick="wrapInBrackets()">[...]</button>
+    <button class="ready" onclick="generateTable()">Ready</button>
+    <button onclick="splitToColumns()">Split +</button>
+    <button onclick="clearExtra()">🧹 Clear</button>
+    <button onclick="undo()">↩️</button>
+    <button onclick="redo()">↪️</button>
+  </div>
+
+  <div class="custom-text-container">
+    <input type="text" id="customTextInput" class="custom-text" placeholder="custom text..." />
+    <button onclick="addCustomText()">☑️</button>
+  </div>
+  <div class="custom-history-bar">
+    <button class="reset-history" onclick="resetCustomHistory()">Reset history</button>
+    <div id="customHistory"></div>
+  </div>
 </div>
-<button onclick="groupValues()">🧩 Группировать</button>
-<button onclick="addRow()">➕</button>
 
-<div class="currency-columns" id="currency-columns">
-    <!-- Currency columns will be inserted here -->
+<!-- ===================== PROMO APP (new) ===================== -->
+<div id="promoApp" style="display:none;">
+  <div class="promo-wrap">
+
+    <div class="promo-input-table">
+      <div class="promo-selected">
+        Порядок в котором отмечены чекбоксы: <span id="promoSelectedCurrencies"><code>не выбрано</code></span><br>
+        <span class="small-muted">Порядок CSV/таблицы (фикс.): <span id="promoSelectedCurrenciesFixed"><code>не выбрано</code></span></span>
+      </div>
+     
+      <div class="promo-currencies" id="promoCurrencyList" style="margin-top:12px;"></div>
+    </div>
+
+    <div class="promo-input-table">
+      <div class="promo-actions">
+        <button onclick="promoAddRow()">➕ Add row</button>
+        <button onclick="promoConvertTabsToSlashes()">Tab → /</button>
+        <input type="text" id="promoRemoveText" class="promo-remove-text" placeholder="Text to remove (e.g. = 100 points)">
+        <button onclick="promoRemoveCustomText()">Clean text</button>
+        <span id="promoStatus" class="status"></span>
+        <button class="ready" onclick="promoConvert()">Convert</button>
+      </div>      
+
+      <div id="promoRows" style="margin-top:12px;"></div>
+      <input type="text" id="promoMultiplier" class="promo-remove-text" placeholder="Multiplier (e.g. 100)">
+        <button class="mult" onclick="promoMultiplyValues()">Multiply</button>
+    </div>
+
+    <div class="flex-horiz">
+      <div id="promoTableContainer">
+        <table id="promoOutputTable"></table>
+        <div class="promo-result-actions">
+          <button onclick="promoCopySelection()">Copy selection</button>
+          <button onclick="promoDownloadCsv()">Download CSV</button>
+        </div>
+      </div>
+      </div>
+  </div>
 </div>
-
-<button onclick="downloadCSV()">📜 Скачать CSV</button>
-<button onclick="generateTable()">🧱 Создать таблицу</button>
-<button onclick="clearValues()">🧹 Clear</button>
-
-
-<table id="prizes-table">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>EUR</th>
-            <th>USD</th>
-            <th>KZT</th>
-            <th>AZN</th>
-            <th>UZS</th>
-            <th>INR</th>
-            <th>CLP</th>
-            <th>MXN</th>
-            <th>CAD</th>
-            <th>BDT</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- Data rows will be inserted here by the script -->
-    </tbody>
-</table>
 
 <script>
-    function addRow() {
-    const formSection = document.getElementById('form-section');
-    const inputRow = document.createElement('div');
-    inputRow.classList.add('input-row');
-    inputRow.innerHTML = `
-        <input type="text" name="variable-name" placeholder="Name">
-        <input type="text" name="amounts" placeholder="€ 20 EUR / $ 20 USD / 2 000 RUB ...">
-    `;
-    formSection.appendChild(inputRow);
-    console.log("Добавлена новая строка ввода");
+  // ===================== Shared: currency definitions (ONE source of truth) =====================
+  // formatKey must match what formatCurrency() expects (switch cases): '$', '€', 'UZS', '₸', etc.
+  const CURRENCY_DEFS = [
+    { code:'USD', formatKey:'USD',  label:'USD',     tournamentBtn:'USD',   promoLabel:'USD' },
+    { code:'EUR', formatKey:'EUR',  label:'EUR',     tournamentBtn:'EUR',   promoLabel:'EUR' },
+    { code:'KZT', formatKey:'KZT',  label:'KZT',     tournamentBtn:'KZT',   promoLabel:'KZT' },
+    { code:'AZN', formatKey:'AZN',  label:'AZN',     tournamentBtn:'AZN',   promoLabel:'AZN' },
+    { code:'UZS', formatKey:'UZS',label:'UZS',  tournamentBtn:'UZS', promoLabel:'UZS' },
+    { code:'INR', formatKey:'INR',label:'INR',         tournamentBtn:'INR', promoLabel:'INR' },
+    { code:'BDT', formatKey:'BDT',label:'BDT',         tournamentBtn:'BDT', promoLabel:'BDT' },
+    { code:'CLP', formatKey:'CLP',label:'CLP',     tournamentBtn:'CLP', promoLabel:'CLP' },
+    { code:'MXN', formatKey:'MXN',label:'MXN',     tournamentBtn:'MXN', promoLabel:'MXN' },
+    { code:'CRC', formatKey:'CRC',label:'CRC',     tournamentBtn:'CRC', promoLabel:'CRC' },
+    { code:'NIO', formatKey:'NIO',label:'NIO',    tournamentBtn:'NIO', promoLabel:'NIO' },
+    { code:'GYD', formatKey:'GYD',label:'GYD',     tournamentBtn:'GYD', promoLabel:'GYD' },
+    { code:'GTQ', formatKey:'GTQ',label:'GTQ',     tournamentBtn:'GTQ', promoLabel:'GTQ' },
+    { code:'HNL', formatKey:'HNL',label:'HNL',     tournamentBtn:'HNL', promoLabel:'HNL' },
+    { code:'BOB', formatKey:'BOB',label:'BOB',    tournamentBtn:'BOB', promoLabel:'BOB' },
+    { code:'NGN', formatKey:'NGN',label:'NGN',     tournamentBtn:'NGN', promoLabel:'NGN' },
+    { code:'KES', formatKey:'KES',label:'KES',   tournamentBtn:'KES', promoLabel:'KES' },
+    { code:'CDF', formatKey:'CDF',label:'CDF',    tournamentBtn:'CDF', promoLabel:'CDF' },
+  ];
+
+  // Order for tournament toolbar (buttons) — keep your original order.
+  const TOURNAMENT_TOOLBAR_ORDER = ['USD','EUR','UZS','KZT','AZN','INR','BDT','CLP','MXN','CRC','NIO','GYD','GTQ','HNL','BOB','NGN','KES','CDF'];
+
+  // Order for promo checkboxes + CSV header — taken from the admin template.
+  // IMPORTANT: mapping order is still "how user checked the boxes"; this is only fixed output/CSV order.
+  const PROMO_FIXED_ORDER = ['USD','KZT','AZN','UZS','INR','CLP','MXN','CRC','NIO','GYD','BDT','GTQ','HNL','BOB','NGN','KES','CDF'];
+
+  const DEF_BY_CODE = Object.fromEntries(CURRENCY_DEFS.map(d => [d.code, d]));
+  const DEF_BY_FORMATKEY = Object.fromEntries(CURRENCY_DEFS.map(d => [d.formatKey, d]));
+
+
+  // ===================== App mode switching =====================
+  const tournamentApp = document.getElementById('tournamentApp');
+  const promoApp = document.getElementById('promoApp');
+  document.querySelectorAll('input[name="appMode"]').forEach(r => {
+    r.addEventListener('change', () => {
+      const mode = document.querySelector('input[name="appMode"]:checked').value;
+      tournamentApp.style.display = mode === 'tournament' ? '' : 'none';
+      promoApp.style.display = mode === 'promo' ? '' : 'none';
+    });
+  });
+
+  
+  // Render tournament currency toolbar from shared defs
+  const tournamentToolbar = document.getElementById('tournamentToolbar');
+  function renderTournamentToolbar(){
+    if (!tournamentToolbar) return;
+    tournamentToolbar.innerHTML = '';
+    TOURNAMENT_TOOLBAR_ORDER.forEach((code) => {
+      const d = DEF_BY_CODE[code];
+      if (!d) return;
+      const btn = document.createElement('button');
+      btn.textContent = d.tournamentBtn;
+      btn.addEventListener('click', () => applyCurrency(d.formatKey));
+      tournamentToolbar.appendChild(btn);
+    });
+  }
+  renderTournamentToolbar();
+
+// ===================== Tournament app (existing code) =====================
+  // Elements
+  const areaA = document.getElementById('textAreaA');
+  const areaB = document.getElementById('textAreaB');
+  const wraps = Array.from(document.querySelectorAll('#areas .text-wrap'));
+  const areasBox = document.getElementById('areas');
+  const doubleMode = document.getElementById('doubleMode');
+  const customTextInput = document.getElementById('customTextInput');
+  customTextInput.addEventListener("keydown", e=>{
+  if(e.key === "Enter"){
+    e.preventDefault(); // чтобы не переносило строку
+    addCustomText();
+  }
+});
+  const tableContainer = document.getElementById('tableContainer');
+  const outputTable = document.getElementById('outputTable');
+
+  // History stacks store BOTH columns
+  const undoStack = [];
+  const redoStack = [];
+
+  // Active area management
+  let activeKey = 'a'; // 'a' or 'b'
+  function getActiveArea(){ return activeKey === 'a' ? areaA : areaB; }
+  function setActive(key){
+    activeKey = key;
+    wraps.forEach(w => w.classList.toggle('active', w.dataset.key === key));
+  }
+  wraps.forEach(w => {
+    const key = w.dataset.key;
+    const ta = key === 'a' ? areaA : areaB;
+    ta.addEventListener('focus', () => setActive(key));
+    // click on wrapper sets active too
+    w.addEventListener('click', () => { (key==='a'?areaA:areaB).focus(); setActive(key);});
+  });
+
+  function saveState(){
+    undoStack.push({ a: areaA.value, b: areaB.value, active: activeKey, double: doubleMode.checked });
+    if (undoStack.length > 200) undoStack.shift();
+    redoStack.length = 0;
+  }
+  function restoreState(s){
+    areaA.value = s.a; areaB.value = s.b; setActive(s.active); doubleMode.checked = s.double; toggleDoubleUI();
+  }
+
+  function undo(){
+    if (undoStack.length){
+      const cur = { a: areaA.value, b: areaB.value, active: activeKey, double: doubleMode.checked };
+      const prev = undoStack.pop();
+      redoStack.push(cur);
+      restoreState(prev);
+    }
+  }
+  function redo(){
+    if (redoStack.length){
+      const cur = { a: areaA.value, b: areaB.value, active: activeKey, double: doubleMode.checked };
+      const next = redoStack.pop();
+      undoStack.push(cur);
+      restoreState(next);
+    }
+  }
+
+  // Double UI toggle
+  function toggleDoubleUI(){
+    const second = wraps.find(w => w.dataset.key === 'b');
+    if (doubleMode.checked){
+      areasBox.classList.add('double');
+      second.style.display = '';
+    } else {
+      areasBox.classList.remove('double');
+      second.style.display = 'none';
+      if (activeKey === 'b') setActive('a');
+    }
+  }
+  doubleMode.addEventListener('change', () => { saveState(); toggleDoubleUI(); });
+
+  // Helpers
+  function cleanToNumberString(s){ return (s || '').replace(/[^0-9]/g,''); }
+
+  // Formatting functions apply to ACTIVE area only
+  function applyCurrency(currency){
+    saveState();
+    const ta = getActiveArea();
+    const lines = ta.value.split('\n');
+    const updated = lines.map(line => {
+      const trimmed = line.trim();
+      if (!trimmed) return '';
+      return formatCurrency(trimmed, currency);
+    });
+    ta.value = updated.join('\n');
+  }
+
+  function promoRemoveCustomText(){
+      const removeText = (document.getElementById('promoRemoveText')?.value || '').trim();
+      if (!removeText) return;
+
+      const rows = Array.from(promoRowsBox.querySelectorAll('.promo-row'));
+
+      rows.forEach(row => {
+        const input = row.querySelector('.promo-input');
+        if (!input) return;
+
+      input.value = input.value.split(removeText).join('').replace(/\s{2,}/g, ' ').trim();
+      });
+
+      promoSetStatus('Текст удалён ✅', 'ok');
+    }
+
+  function formatCurrency(value, currency){
+    const number = parseFloat(String(value).replace(/[^0-9]/g, ''));
+    if (isNaN(number)) return value;
+    switch (currency) {
+      case 'EUR':  return `€ ${number.toLocaleString('en-US').replace(/,/g, ' ')}`;
+      case 'UZS':return `${number.toLocaleString('en-US').replace(/,/g, ' ')} SO’M`;
+      case 'KZT':  return `${number.toLocaleString('en-US').replace(/,/g, ' ')} ₸`;
+      case 'AZN':  return `${number.toLocaleString('en-US').replace(/,/g, ' ')} ₼`;
+      case 'INR':return `${number.toLocaleString('en-IN')} INR`;
+      case 'BDT':return `${number.toLocaleString('en-IN')} BDT`;
+      case 'CLP':return `$ ${number.toLocaleString('en-US').replace(/,/g, ' ')}`;
+      case 'MXN':return `$ ${number.toLocaleString('en-US').replace(/,/g, ' ')}`;
+      case 'CRC':return `₡ ${number.toLocaleString('en-US').replace(/,/g, '.')}`;
+      case 'NIO':return `C$ ${number.toLocaleString('en-US').replace(/,/g, '.')}`;
+      case 'GYD':return `$ ${number.toLocaleString('en-US')}`;
+      case 'GTQ':return `Q${number.toLocaleString('en-US')}`;
+      case 'HNL':return `L ${number.toLocaleString('en-US')}`;
+      case 'BOB':return `Bs ${number.toLocaleString('en-US').replace(/,/g, '.')}`;
+      case 'NGN':return `₦${number.toLocaleString('en-US')}`;
+      case 'KES':return `KSH ${number.toLocaleString('en-US')}`;
+      case 'CDF':return `${number.toLocaleString('en-US').replace(/,/g, ' ')} FC`;
+      default:   return `$ ${number.toLocaleString('en-US').replace(/,/g, ' ')}`;
+    }
+  }
+
+  function addText(text){
+    saveState();
+    const ta = getActiveArea();
+    const lines = ta.value.split('\n');
+    const updated = lines.map(line => {
+      const trimmed = line.trim();
+      if (!trimmed) return '';
+      return `${trimmed} ${text}`.trim();
+    });
+    ta.value = updated.join('\n');
+  }
+
+  function addCustomText(){
+  const customText = customTextInput.value.trim();
+  if (!customText) return;
+
+  addText(customText);
+  addToCustomHistory(customText);
+
+  customTextInput.value = '';
 }
 
-function groupValues() {
-    console.log("Начало группировки значений");
-    const groupedValues = {
-        EUR: [],
-        USD: [],
-        KZT: [],
-        AZN: [],
-        UZS: [],
-        INR: [],
-        CLP: [],
-        MXN: [],
-        CAD: [],
-        BDT: []
+function tournamentTableToPlainText(){
+  const rows = Array.from(outputTable.querySelectorAll('tr'));
+  return rows
+    .map(row => {
+      const cell = row.querySelector('td');
+      return cell ? cell.textContent.trim() : '';
+    })
+    .filter(Boolean)
+    .join('\n');
+}
+
+async function copyTournamentPlainText(){
+  const text = tournamentTableToPlainText();
+  if (!text) return;
+
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (e) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+}
+function autoResizePromoTextarea(el){
+  if (!el) return;
+
+  const minHeight = 38;
+  el.style.height = 'auto';
+
+  const newHeight = Math.max(el.scrollHeight, minHeight);
+  el.style.height = newHeight + 'px';
+}
+
+  function wrapInBrackets(){
+    saveState();
+    const ta = getActiveArea();
+    const lines = ta.value.split('\n');
+    const updated = lines.map(line => {
+      const trimmed = line.trim();
+      if (!trimmed) return '';
+      return `[${trimmed}]`;
+    });
+    ta.value = updated.join('\n');
+  }
+
+  function clearExtra(){
+    saveState();
+    const ta = getActiveArea();
+    const lines = ta.value.split('\n');
+    const cleaned = lines.map(line => {
+      const number = cleanToNumberString(line).trim();
+      return number || '';
+    });
+    ta.value = cleaned.join('\n');
+  }
+
+  function generateTable(){
+    outputTable.innerHTML = '';
+    const aLines = areaA.value.split('\n').map(s=>s.trim()).filter(Boolean);
+    const isDouble = doubleMode.checked;
+
+    if (isDouble){
+      const bLines = areaB.value.split('\n').map(s=>s.trim());
+      const maxLen = Math.max(aLines.length, bLines.filter(Boolean).length);
+      for (let i=0;i<maxLen;i++){
+        const left  = aLines[i] || '';
+        const right = (bLines[i] || '').trim();
+        const parts = [left, right].filter(Boolean);
+        if (!parts.length) continue;
+        const combined = parts.length === 2 ? `${parts[0]} + ${parts[1]}` : `${parts[0]}`;
+        appendRow(combined);
+      }
+    } else {
+      aLines.forEach(line => appendRow(line));
+    }
+
+    tableContainer.style.display = 'block';
+    tournamentEnableSheetSelection();
+    tournamentSelectAll();
+  }
+
+  function appendRow(text){
+  const row = document.createElement('tr');
+
+  const cell = document.createElement('td');
+  cell.textContent = text;
+  cell.dataset.row = String(outputTable.querySelectorAll('tr').length);
+  cell.dataset.col = '0';
+
+  row.appendChild(cell);
+  outputTable.appendChild(row);
+}
+
+  function selectTableContent(tableEl){
+    const range = document.createRange();
+    range.selectNodeContents(tableEl);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  function splitToColumns(){
+    saveState();
+    const source = (getActiveArea().value.trim() ? getActiveArea() : areaA);
+    const lines = source.value.split('\n');
+
+    const leftLines = [];
+    const rightLines = [];
+
+    lines.forEach(line => {
+      const raw = line.trim();
+      if (!raw) { leftLines.push(''); rightLines.push(''); return; }
+      if (!raw.includes('+')) {
+        leftLines.push(raw);
+        rightLines.push('');
+        return;
+      }
+      const [left, ...rest] = raw.split('+');
+      const right = rest.join('+');
+      leftLines.push(left.trim());
+      rightLines.push(right.trim());
+    });
+
+    areaA.value = leftLines.join('\n');
+    areaB.value = rightLines.join('\n');
+    if (!doubleMode.checked) { doubleMode.checked = true; toggleDoubleUI(); }
+  }
+
+  // ===================== Promo app (new code) =====================
+  const promoCurrencyList = document.getElementById('promoCurrencyList');
+  const promoSelectedCurrencies = document.getElementById('promoSelectedCurrencies');
+  const promoSelectedCurrenciesFixed = document.getElementById('promoSelectedCurrenciesFixed');
+  let promoSelectionOrder = []; // order of checking for mapping (user-defined)
+  const promoStatus = document.getElementById('promoStatus');
+
+  const promoRowsBox = document.getElementById('promoRows');
+  const promoTableContainer = document.getElementById('promoTableContainer');
+  const promoOutputTable = document.getElementById('promoOutputTable');
+
+  // keep last converted data for CSV export (so we can export without row numbers column)
+  let promoLast = null;
+
+  function promoRenderCurrencyCheckboxes(){
+    promoCurrencyList.innerHTML = '';
+    PROMO_FIXED_ORDER.forEach((code, idx) => {
+      const c = DEF_BY_CODE[code];
+      if (!c) return;
+      const id = `promo_cur_${idx}`;
+      const label = document.createElement('label');
+      label.innerHTML = `<input type="checkbox" id="${id}" data-key="${c.formatKey}"> <span>${c.promoLabel}</span>`;
+      promoCurrencyList.appendChild(label);
+
+      const cb = label.querySelector('input');
+      cb.addEventListener('change', () => {
+        const key = cb.dataset.key;
+        if (cb.checked){
+          if (!promoSelectionOrder.includes(key)) promoSelectionOrder.push(key);
+        } else {
+          promoSelectionOrder = promoSelectionOrder.filter(k => k !== key);
+        }
+        promoUpdateSelectedPreview();
+      });
+    });
+    promoUpdateSelectedPreview();
+  }
+
+  function promoGetSelectedCurrencyKeys(){
+    // Fixed order for CSV/table = DOM order (same as list on screen)
+    const inputs = Array.from(promoCurrencyList.querySelectorAll('input[type="checkbox"]'));
+    return inputs.filter(i => i.checked).map(i => i.dataset.key);
+  }
+
+  function promoGetMappingCurrencyKeys(){
+    // Mapping order = user selection order (how they checked the boxes)
+    const checkedSet = new Set(promoGetSelectedCurrencyKeys());
+    return promoSelectionOrder.filter(k => checkedSet.has(k));
+  }
+
+  function promoUpdateSelectedPreview(){
+    const fixedKeys = promoGetSelectedCurrencyKeys();      // CSV/table order
+    const mappingKeys = promoGetMappingCurrencyKeys();     // input mapping order
+
+    if (!fixedKeys.length){
+      promoSelectedCurrencies.innerHTML = `<code>не выбрано</code>`;
+      promoSelectedCurrenciesFixed.innerHTML = `<code>не выбрано</code>`;
+      promoSetStatus('', null);
+      return;
+    }
+
+    const toLabel = (k) => {
+      const meta = DEF_BY_FORMATKEY[k];
+      return meta ? meta.promoLabel : k;
     };
 
-    const inputRows = document.querySelectorAll('.input-row');
-    inputRows.forEach(row => {
-        const amounts = row.querySelector('input[name="amounts"]').value.trim();
-        console.log("Введенные значения:", amounts);
-        const values = amounts.split(' / ');
-        console.log("Разбитые значения:", values);
+    const mappingLabels = mappingKeys.map(toLabel);
+    const fixedLabels = fixedKeys.map(toLabel);
 
-        values.forEach((value, index) => {
-            const currencyKeys = Object.keys(groupedValues);
-            const currency = currencyKeys[index];
-            if (currency) {
-                groupedValues[currency].push(value);
-                console.log(`Добавлено значение для ${currency}: ${value}`);
-            }
-        });
+    promoSelectedCurrencies.innerHTML = mappingLabels.map(x => `<code>${escapeHtml(x)}</code>`).join(' ');
+    promoSelectedCurrenciesFixed.innerHTML = fixedLabels.map(x => `<code>${escapeHtml(x)}</code>`).join(' ');
+    promoSetStatus('', null);
+  }
+
+  function promoSetStatus(message, kind){
+    if (!promoStatus) return;
+    promoStatus.textContent = message || '';
+    promoStatus.classList.remove('error','ok');
+    if (kind) promoStatus.classList.add(kind);
+  }
+
+  function promoAddRow(prefillVar='', prefillValues=''){
+  const row = document.createElement('div');
+  row.className = 'promo-row';
+  row.innerHTML = `
+    <input class="promo-var" placeholder="Variable name" value="${escapeAttr(prefillVar)}">
+    <textarea class="promo-input promo-values" rows="1" placeholder="Values (e.g. $ 4 USD / 2 400 ₸ KZT / 56 000 SO'M UZS)">${escapeAttr(prefillValues)}</textarea>
+    <div class="row-actions">
+      <button class="ghost" title="Удалить строку" onclick="promoRemoveRow(this)">🗑</button>
+    </div>
+  `;
+
+  promoRowsBox.appendChild(row);
+
+  const valuesEl = row.querySelector('.promo-values');
+  if (valuesEl){
+    autoResizePromoTextarea(valuesEl);
+
+    valuesEl.addEventListener('input', () => {
+      if (valuesEl.value.trim() === '') {
+        valuesEl.style.height = '42px';
+      } else {
+        autoResizePromoTextarea(valuesEl);
+      }
     });
-
-    const currencyColumns = document.getElementById('currency-columns');
-    currencyColumns.innerHTML = ''; // Clear currency columns section
-    Object.keys(groupedValues).forEach(currency => {
-        const columnDiv = document.createElement('div');
-        columnDiv.classList.add('currency-column');
-        const label = document.createElement('label');
-        label.textContent = currency;
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.id = `checkbox-${currency}`;
-        checkbox.checked = false; // Default to false, meaning don't preserve commas
-        label.appendChild(checkbox);
-        const textarea = document.createElement('textarea');
-        textarea.name = currency;
-        textarea.value = groupedValues[currency].join('\n');
-        columnDiv.appendChild(label);
-        columnDiv.appendChild(textarea);
-        currencyColumns.appendChild(columnDiv);
-    });
-
-    console.log("Группировка значений завершена:", groupedValues);
+  }
 }
 
+  function promoRemoveRow(btn){
+    const row = btn.closest('.promo-row');
+    if (row) row.remove();
+  }
 
+  
+  function promoSanitizeVarName(name){
+    // Trim edges, then replace internal spaces / hyphens with underscores
+    // Examples: "UFC326 4-10 " -> "UFC326_4_10"
+    const trimmed = (name || '').trim();
+    if (!trimmed) return '';
+    return trimmed
+      .replace(/[\s\-]+/g, '_')   // spaces and hyphens -> _
+      .replace(/_+/g, '_');         // collapse multiple underscores
+  }
 
-function clearValues() {
-    console.log("Очистка значений");
-    const currencyColumns = document.querySelectorAll('.currency-column textarea');
-    currencyColumns.forEach(column => {
-        const preserveCommas = document.getElementById(`checkbox-${column.name}`).checked;
-        let values = column.value.split('\n').map(value => {
-            if (value.startsWith('[') && value.endsWith(']')) {
-                return value;
-            }
-            let amount = value.replace(/[^\d.,-]/g, ''); // удаляем все, кроме цифр, точек и минусов
-            if ((column.name === 'INR' || column.name === 'BDT') || !preserveCommas) {
-                amount = amount.replace(/,/g, ''); // удаляем запятые для INR и BDT или если запятые не должны сохраняться
-            }
-            return amount;
-        });
-        column.value = values.join('\n');
-        console.log("Очищенные значения для", column.name, ":", values);
-    });
-}
+function promoConvert(){
 
-function generateTable() {
-    console.log("Начало генерации таблицы");
-    const tableBody = document.getElementById('prizes-table').getElementsByTagName('tbody')[0];
-    tableBody.innerHTML = '';
-
-    const inputRows = document.querySelectorAll('.input-row');
-    const currencyColumns = document.querySelectorAll('.currency-column textarea');
-    const groupedValues = {};
-
-    currencyColumns.forEach(column => {
-        groupedValues[column.name] = column.value.split('\n');
-        console.log(`Значения для ${column.name}:`, groupedValues[column.name]);
-    });
-
-    inputRows.forEach((row, index) => {
-        const variableName = row.querySelector('input[name="variable-name"]').value.trim();
-        if (variableName) {
-            const tr = document.createElement('tr');
-            
-            const variableCell = document.createElement('td');
-            variableCell.textContent = variableName;
-            tr.appendChild(variableCell);
-
-            const currencies = ["EUR", "USD", "KZT", "AZN", "UZS", "INR", "CLP", "MXN", "CAD", "BDT"];
-            currencies.forEach(currency => {
-                const amountCell = document.createElement('td');
-                const value = groupedValues[currency] && groupedValues[currency][index];
-                console.log(`Значение для ${currency} в строке ${index}: ${value}`);
-                if (value && value.startsWith('[') && value.endsWith(']')) {
-                    amountCell.textContent = value.slice(1, -1); // Remove brackets
-                } else {
-                    amountCell.textContent = value ? formatAmount(value, currency) : '';
-                }
-                tr.appendChild(amountCell);
-            });
-
-            tableBody.appendChild(tr);
-            console.log("Добавлена строка в таблицу:", tr);
-        }
-    });
-}
-
-function formatAmount(amount, currency) {
-    console.log("Форматирование суммы:", amount, "для валюты:", currency);
-    switch (currency) {
-        case 'INR':
-        case 'BDT':
-            return `${formatINRBDT(amount)} ${currency}`;
-        default:
-            return currencyFormats[currency](parseFloat(amount.replace(',', '.')));
+    const outputKeys = promoGetSelectedCurrencyKeys();
+    const mappingKeys = promoGetMappingCurrencyKeys();
+    if (!outputKeys.length){
+      promoSetStatus('Выбери хотя бы одну валюту (чекбоксами).', 'error');
+      return;
     }
-}
 
-function downloadCSV() {
-    console.log("Скачивание CSV");
-    const allCurrencies = ["EUR", "USD", "KZT", "AZN", "UZS", "INR", "CLP", "MXN", "CAD", "BDT"];
-    const csvHeaders = ["Name"].concat(allCurrencies);
+    // read rows
+    const rows = Array.from(promoRowsBox.querySelectorAll('.promo-row'));
+    const data = [];
+    for (const r of rows){
+      const varEl = r.querySelector('.promo-var');
+      const varNameRaw = (varEl?.value || '');
+      const varName = promoSanitizeVarName(varNameRaw);
+      if (varEl) varEl.value = varName;
+      let raw = (r.querySelector('.promo-input')?.value || '').trim();
+      const removeText = (document.getElementById('promoRemoveText')?.value || '').trim();
+        if (removeText) {
+          raw = raw.split(removeText).join('').replace(/\s{2,}/g, ' ').trim();
+          r.querySelector('.promo-input').value = raw;
+        }
 
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += csvHeaders.join(",") + "\n";
+      // если строка содержит табы (вставка из Google Sheets)
+      // автоматически превращаем их в /
+      if (raw.includes('\t')) {
+        raw = raw
+      .split('\n')
+      .map(line =>
+        line.split('\t')
+          .map(x => x.trim())
+          .filter(Boolean)
+          .join(' / ')
+      )
+      .join('\n');
+      }
+      if (!varName && !raw) continue; // skip empty row
 
-    const tableRows = Array.from(document.getElementById('prizes-table').getElementsByTagName('tbody')[0].rows);
-    tableRows.forEach(row => {
-        const cells = Array.from(row.cells);
-        let rowContent = cells.map((cell, cellIndex) => {
-            let cellText = cell.textContent.trim();
-            let needsQuotes = false;
+      const parts = raw ? raw.split('/').map(s => s.trim()) : [];
+      const formattedByCurrency = {};
 
-            // Condition 1: Any value in the "Name" column should not be in quotes
-            if (cellIndex === 0) {
-                cellText = cellText.toUpperCase(); // Convert variable names to uppercase
-                needsQuotes = false;
-            } else {
-                // Condition 2: Check if the value contains a comma
-                if (cellText.includes(',')) {
-                    needsQuotes = true;
-                } else {
-                    // Condition 3: Check for specific currency symbols or a numeric value without any symbols
-                    const currencySymbols = ['€', '$', '₸', '₼', "SO'M", 'INR', 'BDT'];
-                    let hasCurrencySymbol = currencySymbols.some(symbol => cellText.includes(symbol));
-                    let isNumericValue = !isNaN(parseFloat(cellText.replace(/,/g, '')));
-                    needsQuotes = !(hasCurrencySymbol || isNumericValue);
-                }
-            }
+      mappingKeys.forEach((curKey, i) => {
+        const part = parts[i] ?? '';
+        const digits = cleanToNumberString(part);
+        if (!digits){
+          formattedByCurrency[curKey] = '';
+        } else {
+          formattedByCurrency[curKey] = formatCurrency(digits, curKey);
+        }
+      });
 
-            if (needsQuotes) {
-                cellText = cellText.replace(/"/g, '""'); // Escape double quotes by doubling them
-                cellText = `"${cellText}"`;
-            }
+      data.push({ varName, formattedByCurrency });
+    }
 
-            console.log(`Processing cell: ${cell.textContent}, Stripped: ${cellText.replace(/"/g, '')}, Needs quotes: ${needsQuotes}`);
-            return cellText;
-        }).join(",");
-        csvContent += rowContent + "\n";
+    promoLast = { outputKeys, data };
+
+    promoRenderOutputTable(outputKeys, data);
+    promoSetStatus('Готово ✅', 'ok');
+  }
+
+  function promoMultiplyValues(){
+  const multiplierRaw = (document.getElementById('promoMultiplier')?.value || '').trim();
+  const multiplier = parseFloat(multiplierRaw.replace(',', '.'));
+
+  if (!multiplier || isNaN(multiplier)) {
+    promoSetStatus('Введи корректный multiplier.', 'error');
+    return;
+  }
+
+  const rows = Array.from(promoRowsBox.querySelectorAll('.promo-row'));
+
+  rows.forEach(row => {
+    const input = row.querySelector('.promo-input');
+    if (!input) return;
+
+    let value = (input.value || '').trim();
+    if (!value) return;
+
+    const updated = value
+      .split('/')
+      .map(part => {
+        const trimmed = part.trim();
+        if (!trimmed) return '';
+
+        const digits = cleanToNumberString(trimmed);
+        if (!digits) return trimmed;
+
+        const multiplied = Math.round(Number(digits) * multiplier);
+
+        // заменяем первую числовую часть в куске на новое число
+        return trimmed.replace(/[0-9\s.,]+/, String(multiplied));
+      })
+      .join(' / ');
+
+        input.value = updated;
+        });
+
+      promoSetStatus('Multiplier applied ✅', 'ok');
+    }
+
+  function promoRenderOutputTable(selectedCurrencyKeys, dataRows){
+    promoOutputTable.innerHTML = '';
+    promoOutputTable.classList.add('promo-sheet');
+
+    // Header row: [#] [Name] [Currencies...]
+    const trHead = document.createElement('tr');
+
+    const thCorner = document.createElement('th');
+    thCorner.textContent = '';
+    trHead.appendChild(thCorner);
+
+    const thName = document.createElement('th');
+    thName.textContent = 'Name';
+    thName.className = 'colhdr';
+    thName.dataset.col = 'name';
+    trHead.appendChild(thName);
+
+    selectedCurrencyKeys.forEach((k, ci) => {
+      const th = document.createElement('th');
+      const meta = DEF_BY_FORMATKEY[k];
+      th.textContent = meta ? meta.code : k;
+      th.className = 'colhdr';
+      th.dataset.col = String(ci);
+      trHead.appendChild(th);
     });
 
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "cms_variables.csv");
-    document.body.appendChild(link); // Required for FF
-    link.click();
-    document.body.removeChild(link);
-    console.log("CSV скачан успешно");
+    promoOutputTable.appendChild(trHead);
+
+    // Data rows
+    dataRows.forEach((r, ri) => {
+      const tr = document.createElement('tr');
+
+      const thRow = document.createElement('th');
+      thRow.textContent = String(ri + 1);
+      thRow.className = 'rowhdr';
+      thRow.dataset.row = String(ri);
+      tr.appendChild(thRow);
+
+      const tdName = document.createElement('td');
+      tdName.textContent = r.varName || '';
+      tdName.dataset.row = String(ri);
+      tdName.dataset.col = 'name';
+      tr.appendChild(tdName);
+
+      selectedCurrencyKeys.forEach((k, ci) => {
+        const td = document.createElement('td');
+        td.textContent = r.formattedByCurrency[k] ?? '';
+        td.dataset.row = String(ri);
+        td.dataset.col = String(ci);
+        tr.appendChild(td);
+      });
+
+      promoOutputTable.appendChild(tr);
+    });
+
+    promoTableContainer.style.display = 'block';
+
+    promoEnableSheetSelection();
+  }
+
+  // --- Promo sheet-like selection (rectangle / row / column + Ctrl/Cmd+C) ---
+  let promoSel = null; // {type:'rect'|'col'|'row', ...}
+  let promoIsDragging = false;
+  let promoDragStart = null;
+
+  let promoCopyListenerBound = false;
+
+  function promoEnableSheetSelection(){
+    // Avoid rebinding
+    if (promoOutputTable.dataset.sheetBound === '1') {
+      promoClearSheetSelection();
+      return;
+    }
+    promoOutputTable.dataset.sheetBound = '1';
+
+    // Bind copy handler once (so Ctrl/Cmd+C works like in spreadsheets)
+    if (!promoCopyListenerBound){
+      promoCopyListenerBound = true;
+      document.addEventListener('copy', (e) => {
+        if (!promoSel) return;
+        const text = promoSelectionToTsv();
+        if (e.clipboardData){
+          e.clipboardData.setData('text/plain', text);
+          e.preventDefault();
+          promoSetStatus('Скопировано ✅', false);
+        }
+      });
+    }
+
+    // Prevent right-click from dropping our visual selection
+    promoOutputTable.addEventListener('contextmenu', (e) => {
+      if (!promoSel) return;
+      e.preventDefault();
+    });
+
+
+    promoOutputTable.addEventListener('mousedown', (e) => {
+      const cell = e.target.closest('td,th');
+      if (!cell || !promoOutputTable.contains(cell)) return;
+
+      // prevent native text selection
+      e.preventDefault();
+
+      // Column header click
+      if (cell.tagName === 'TH' && cell.classList.contains('colhdr')) {
+        promoSelectColumn(cell.dataset.col);
+        promoIsDragging = false;
+        promoDragStart = null;
+        return;
+      }
+
+      // Row header click
+      if (cell.tagName === 'TH' && cell.classList.contains('rowhdr')) {
+        promoSelectRow(parseInt(cell.dataset.row, 10));
+        promoIsDragging = false;
+        promoDragStart = null;
+        return;
+      }
+
+      // Data cell drag selection
+      if (cell.tagName === 'TD') {
+        const row = cell.dataset.row;
+        const col = cell.dataset.col;
+        if (row == null || col == null) return;
+
+        promoIsDragging = true;
+        promoDragStart = { row: parseInt(row, 10), col };
+        promoSelectRect(promoDragStart.row, promoDragStart.col, promoDragStart.row, promoDragStart.col);
+      }
+    });
+
+    promoOutputTable.addEventListener('mousemove', (e) => {
+      if (!promoIsDragging || !promoDragStart) return;
+      const cell = e.target.closest('td');
+      if (!cell || !promoOutputTable.contains(cell)) return;
+
+      const row = cell.dataset.row;
+      const col = cell.dataset.col;
+      if (row == null || col == null) return;
+
+      promoSelectRect(promoDragStart.row, promoDragStart.col, parseInt(row, 10), col);
+    });
+
+    window.addEventListener('mouseup', () => {
+      promoIsDragging = false;
+      promoDragStart = null;
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (!promoSel) return;
+      const isCopy = (e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C');
+      if (!isCopy) return;
+
+      e.preventDefault();
+      const text = promoSelectionToTsv();
+      promoWriteClipboard(text);
+      promoSetStatus('Скопировано ✅', false);
+    });
+  }
+
+let tournamentSel = null;
+let tournamentCopyListenerBound = false;
+let tournamentIsDragging = false;
+let tournamentDragStart = null;
+
+function tournamentClearSheetSelection(){
+  outputTable.querySelectorAll('.sel').forEach(el => el.classList.remove('sel'));
+  tournamentSel = null;
 }
 
-
-
-const currencyFormats = {
-    'EUR': (value) => `€ ${value.toLocaleString()}`,
-    'USD': (value) => `$ ${value.toLocaleString()}`,
-    'KZT': (value) => `${value.toLocaleString()} ₸`,
-    'AZN': (value) => `${value.toLocaleString()} ₼`,
-    'UZS': (value) => `${value.toLocaleString()} SO'M`,
-    'INR': (value) => `${formatINRBDT(value)} INR`,
-    'CLP': (value) => `$ ${value.toLocaleString()}`,
-    'MXN': (value) => `$ ${value.toLocaleString()}`,
-    'CAD': (value) => `$ ${value.toLocaleString()}`,
-    'BDT': (value) => `${formatINRBDT(value)} BDT`
-};
-
-function formatINRBDT(value) {
-    return parseFloat(value.replace(/,/g, '')).toLocaleString('en-IN', { maximumFractionDigits: 20 });
+function tournamentSelectAll(){
+  tournamentClearSheetSelection();
+  const cells = Array.from(outputTable.querySelectorAll('td[data-col="0"]'));
+  cells.forEach(td => td.classList.add('sel'));
+  tournamentSel = { type:'all' };
 }
 
-document.addEventListener('DOMContentLoaded', groupValues);
+function tournamentSelectCell(row){
+  tournamentClearSheetSelection();
+  const td = outputTable.querySelector(`td[data-row="${row}"][data-col="0"]`);
+  if (td) td.classList.add('sel');
+  tournamentSel = { type:'range', r1: row, r2: row };
+}
 
+function tournamentSelectRange(r1, r2){
+  tournamentClearSheetSelection();
+  const start = Math.min(r1, r2);
+  const end = Math.max(r1, r2);
+
+  for (let r = start; r <= end; r++){
+    const td = outputTable.querySelector(`td[data-row="${r}"][data-col="0"]`);
+    if (td) td.classList.add('sel');
+  }
+
+  tournamentSel = { type:'range', r1: start, r2: end };
+}
+
+function tournamentSelectionToText(){
+  if (!tournamentSel) return '';
+
+  if (tournamentSel.type === 'all'){
+    return Array.from(outputTable.querySelectorAll('td[data-col="0"]'))
+      .map(td => td.textContent.trim())
+      .filter(Boolean)
+      .join('\n');
+  }
+
+  if (tournamentSel.type === 'range'){
+    const lines = [];
+    for (let r = tournamentSel.r1; r <= tournamentSel.r2; r++){
+      const td = outputTable.querySelector(`td[data-row="${r}"][data-col="0"]`);
+      if (td) lines.push(td.textContent.trim());
+    }
+    return lines.join('\n');
+  }
+
+  return '';
+}
+
+async function tournamentWriteClipboard(text){
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+  } catch (_) {}
+
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  ta.style.top = '0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try { document.execCommand('copy'); } catch(_) {}
+  document.body.removeChild(ta);
+}
+
+function tournamentCopySelection(){
+  if (tableContainer.style.display === 'none' || !outputTable.rows.length) return;
+
+  const text = tournamentSel
+    ? tournamentSelectionToText()
+    : Array.from(outputTable.querySelectorAll('td[data-col="0"]'))
+        .map(td => td.textContent.trim())
+        .filter(Boolean)
+        .join('\n');
+
+  tournamentWriteClipboard(text);
+}
+
+function tournamentEnableSheetSelection(){
+  if (outputTable.dataset.sheetBound === '1') return;
+  outputTable.dataset.sheetBound = '1';
+
+  outputTable.addEventListener('mousedown', (e) => {
+    const cell = e.target.closest('td');
+    if (!cell || !outputTable.contains(cell)) return;
+
+    e.preventDefault();
+
+    const row = parseInt(cell.dataset.row, 10);
+    tournamentIsDragging = true;
+    tournamentDragStart = row;
+    tournamentSelectRange(row, row);
+  });
+
+  outputTable.addEventListener('mousemove', (e) => {
+    if (!tournamentIsDragging || tournamentDragStart === null) return;
+
+    const cell = e.target.closest('td');
+    if (!cell || !outputTable.contains(cell)) return;
+
+    const row = parseInt(cell.dataset.row, 10);
+    tournamentSelectRange(tournamentDragStart, row);
+  });
+
+  window.addEventListener('mouseup', () => {
+    tournamentIsDragging = false;
+    tournamentDragStart = null;
+  });
+
+  outputTable.addEventListener('dblclick', (e) => {
+    const cell = e.target.closest('td');
+    if (!cell || !outputTable.contains(cell)) return;
+
+    e.preventDefault();
+    tournamentSelectAll();
+  });
+
+  if (!tournamentCopyListenerBound){
+    tournamentCopyListenerBound = true;
+    document.addEventListener('copy', (e) => {
+      if (!tournamentSel) return;
+      const text = tournamentSelectionToText();
+      if (e.clipboardData){
+        e.clipboardData.setData('text/plain', text);
+        e.preventDefault();
+      }
+    });
+  }
+}
+
+  function promoClearSheetSelection(){
+    promoOutputTable.querySelectorAll('.sel').forEach(el => el.classList.remove('sel'));
+    promoSel = null;
+  }
+
+  function promoSelectColumn(col){
+    promoClearSheetSelection();
+    promoSel = { type:'col', col };
+
+    const header = promoOutputTable.querySelector(`th.colhdr[data-col="${cssEscape(String(col))}"]`);
+    if (header) header.classList.add('sel');
+
+    promoOutputTable.querySelectorAll(`td[data-col="${cssEscape(String(col))}"]`).forEach(td => td.classList.add('sel'));
+  }
+
+  function promoSelectRow(row){
+    promoClearSheetSelection();
+    promoSel = { type:'row', row };
+
+    const rh = promoOutputTable.querySelector(`th.rowhdr[data-row="${row}"]`);
+    if (rh) rh.classList.add('sel');
+
+    promoOutputTable.querySelectorAll(`td[data-row="${row}"]`).forEach(td => td.classList.add('sel'));
+  }
+
+  function promoColToIndex(col){
+    if (col === 'name') return 0;
+    const n = parseInt(col, 10);
+    return isNaN(n) ? 0 : (n + 1);
+  }
+  function promoIndexToCol(idx){
+    return idx === 0 ? 'name' : String(idx - 1);
+  }
+
+  function promoSelectRect(r1, c1, r2, c2){
+    promoClearSheetSelection();
+    const rr1 = Math.min(r1, r2);
+    const rr2 = Math.max(r1, r2);
+    const cc1 = Math.min(promoColToIndex(c1), promoColToIndex(c2));
+    const cc2 = Math.max(promoColToIndex(c1), promoColToIndex(c2));
+    promoSel = { type:'rect', r1: rr1, r2: rr2, c1: cc1, c2: cc2 };
+
+    for (let r = rr1; r <= rr2; r++){
+      for (let c = cc1; c <= cc2; c++){
+        const colKey = promoIndexToCol(c);
+        const td = promoOutputTable.querySelector(`td[data-row="${r}"][data-col="${cssEscape(colKey)}"]`);
+        if (td) td.classList.add('sel');
+      }
+    }
+  }
+
+  function promoSelectionToTsv(){
+    if (!promoSel) return '';
+    if (promoSel.type === 'col'){
+      const col = promoSel.col;
+      const values = Array.from(promoOutputTable.querySelectorAll(`td[data-col="${cssEscape(String(col))}"]`)).map(td => td.textContent);
+      return values.join('\n');
+    }
+    if (promoSel.type === 'row'){
+      const row = promoSel.row;
+      const cells = Array.from(promoOutputTable.querySelectorAll(`td[data-row="${row}"]`))
+        .sort((a,b) => promoColToIndex(a.dataset.col) - promoColToIndex(b.dataset.col))
+        .map(td => td.textContent);
+      return cells.join('\t');
+    }
+    const { r1,r2,c1,c2 } = promoSel;
+    const lines = [];
+    for (let r = r1; r <= r2; r++){
+      const rowCells = [];
+      for (let c = c1; c <= c2; c++){
+        const colKey = promoIndexToCol(c);
+        const td = promoOutputTable.querySelector(`td[data-row="${r}"][data-col="${cssEscape(colKey)}"]`);
+        rowCells.push(td ? td.textContent : '');
+      }
+      lines.push(rowCells.join('\t'));
+    }
+    return lines.join('\n');
+  }
+
+  async function promoWriteClipboard(text){
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+    } catch (_) {}
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    ta.style.top = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try { document.execCommand('copy'); } catch(_) {}
+    document.body.removeChild(ta);
+  }
+
+  function cssEscape(s){
+    if (window.CSS && CSS.escape) return CSS.escape(s);
+    return String(s).replace(/[^a-zA-Z0-9_-]/g, '\\$&');
+  }
+  
+  function promoTableToTsvAll(){
+    if (promoTableContainer.style.display === 'none' || !promoOutputTable.rows.length) return '';
+    const lines = [];
+    for (const tr of Array.from(promoOutputTable.rows)){
+      const cells = Array.from(tr.cells).map(td => (td.textContent ?? '').trim());
+      lines.push(cells.join('\t'));
+    }
+    return lines.join('\n');
+  }
+
+  function promoCopySelection(){
+    // Copy selected cells (if any). If nothing is selected, copy the whole table.
+    if (promoTableContainer.style.display === 'none' || !promoOutputTable.rows.length){
+      promoSetStatus('Сначала нажми Convert, чтобы появилась таблица.', 'error');
+      return;
+    }
+    const text = promoSel ? promoSelectionToTsv() : promoTableToTsvAll();
+    promoWriteClipboard(text);
+    promoSetStatus('Скопировано ✅', false);
+  }
+
+function promoDownloadCsv(){
+    // CSV export in admin-friendly shape: Name + selected currency columns (fixed order)
+    if (!promoLast || !promoLast.outputKeys || !promoLast.outputKeys.length){
+      promoSetStatus('Сначала нажми Convert, чтобы появилась таблица.', 'error');
+      return;
+    }
+
+    const { outputKeys, data } = promoLast;
+
+    const header = ['Name', ...outputKeys.map(k => (DEF_BY_FORMATKEY[k]?.code ?? k))];
+    const rows = [header];
+
+    for (const r of data){
+      const line = [r.varName || ''];
+      for (const k of outputKeys){
+        line.push(r.formattedByCurrency[k] ?? '');
+      }
+      rows.push(line);
+    }
+
+    // Join rows with newline
+    const csv = rows.map(cols => cols.map(csvEscape).join(',')).join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'promo_values.csv';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function csvEscape(value){
+    const s = String(value ?? '');
+    if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  function escapeHtml(str){
+    return String(str ?? '').replace(/[&<>"']/g, m => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;', "'":'&#39;'
+    })[m]);
+  }
+  function escapeAttr(str){
+    return escapeHtml(str).replace(/"/g, '&quot;');
+  }
+
+  const HISTORY_KEY = "customTextHistory";
+const HISTORY_LIMIT = 10;
+
+function loadCustomHistory(){
+  const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+  renderCustomHistory(history);
+}
+
+function saveCustomHistory(history){
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+}
+
+function addToCustomHistory(text){
+  let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+
+  history = history.filter(i => i !== text);
+  history.unshift(text);
+
+  if(history.length > HISTORY_LIMIT){
+    history = history.slice(0,HISTORY_LIMIT);
+  }
+
+  saveCustomHistory(history);
+  renderCustomHistory(history);
+}
+
+function renderCustomHistory(history){
+  const container = document.getElementById("customHistory");
+  container.innerHTML = "";
+
+  history.forEach((text,i)=>{
+    const item = document.createElement("div");
+    item.className = "history-item";
+
+    const label = document.createElement("span");
+    label.textContent = text;
+    label.onclick = ()=> addText(text);
+
+    const del = document.createElement("span");
+    del.textContent = "✖";
+    del.className = "history-delete";
+    del.onclick = (e)=>{
+      e.stopPropagation();
+      deleteHistoryItem(i);
+    };
+
+    item.appendChild(label);
+    item.appendChild(del);
+
+    container.appendChild(item);
+  });
+}
+
+function deleteHistoryItem(index){
+  let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+  history.splice(index,1);
+  saveCustomHistory(history);
+  renderCustomHistory(history);
+}
+
+function resetCustomHistory(){
+  localStorage.removeItem(HISTORY_KEY);
+  renderCustomHistory([]);
+}
+
+function promoConvertTabsToSlashes(){
+  const rows = Array.from(promoRowsBox.querySelectorAll('.promo-row'));
+
+  rows.forEach(row => {
+    const input = row.querySelector('.promo-input');
+    if (!input) return;
+
+    const value = input.value || '';
+
+    // Меняем только табы между ячейками на слеши
+    if (value.includes('\t')) {
+      input.value = value
+        .split('\n')
+        .map(line => line.split('\t').map(x => x.trim()).filter(Boolean).join(' / '))
+        .join('\n');
+    }
+  });
+
+  promoSetStatus('Tab → / готово ✅', 'ok');
+}
+
+  // Init promo UI
+  promoRenderCurrencyCheckboxes();
+  // start with 3 empty rows for convenience
+  promoAddRow();
+  promoAddRow();
+  promoAddRow();
+  loadCustomHistory();
 </script>
 
 </body>
