@@ -32,6 +32,8 @@
   button.ready:hover { background-color: var(--btn-ready-hover); }
   button.ghost { background: transparent; border: 2px solid var(--btn); color: #fff; }
   button.ghost:hover { background: var(--btn-hover); border-color: var(--btn-hover); }
+  button.unredo { background-color: goldenrod; }
+
   input.custom-text, input.promo-input, input.promo-var {
     border: 2px solid var(--line); border-radius: 5px; padding: 1px 10px; height: 35px;
     background-color: var(--paper); color: var(--line); font-size: 16px; outline: none;
@@ -248,13 +250,12 @@ textarea.promo-values{
     <button onclick="addText('Bonus Sport')">Bonus Sport</button>
     <button onclick="addText('Free Bet')">Free Bet</button>
     <button onclick="addText('Free Spins')">Free Spins</button>
-    <button onclick="addText('Real Money')">Real Money</button>
-    <button onclick="wrapInBrackets()">[...]</button>
-    <button class="ready" onclick="generateTable()">Ready</button>
+    <button onclick="addText('Real Money')">Real Money</button>    
     <button onclick="splitToColumns()">Split +</button>
     <button onclick="clearExtra()">🧹 Clear</button>
-    <button onclick="undo()">↩️</button>
-    <button onclick="redo()">↪️</button>
+    <button class="unredo" onclick="undo()">↩️</button>
+    <button class="unredo" onclick="redo()">↪️</button>
+    <button class="ready" onclick="generateTable()">Ready</button>
   </div>
 
   <div class="custom-text-container">
@@ -283,11 +284,11 @@ textarea.promo-values{
     <div class="promo-input-table">
       <div class="promo-actions">
         <button onclick="promoAddRow()">➕ Add row</button>
-        <button onclick="promoConvertTabsToSlashes()">Tab → /</button>
+        <!-- <button onclick="promoConvertTabsToSlashes()">Tab → /</button> -->
         <input type="text" id="promoRemoveText" class="promo-remove-text" placeholder="Text to remove (e.g. = 100 points)">
         <button onclick="promoRemoveCustomText()">Clean text</button>
         <span id="promoStatus" class="status"></span>
-        <button class="ready" onclick="promoConvert()">Convert</button>
+        <button class="ready" onclick="promoConvert()">Ready</button>
       </div>      
 
       <div id="promoRows" style="margin-top:12px;"></div>
