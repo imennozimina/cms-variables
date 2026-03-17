@@ -341,7 +341,7 @@ textarea.promo-values{
 
   // Order for promo checkboxes + CSV header — taken from the admin template.
   // IMPORTANT: mapping order is still "how user checked the boxes"; this is only fixed output/CSV order.
-  const PROMO_FIXED_ORDER = ['USD','KZT','AZN','UZS','INR','CLP','MXN','CRC','NIO','GYD','BDT','GTQ','HNL','BOB','NGN','KES','CDF'];
+  const PROMO_FIXED_ORDER = ['USD','KZT','AZN','UZS','INR','BDT','CLP','MXN','CRC','NIO','GYD','GTQ','HNL','BOB','NGN','KES','CDF'];
 
   const DEF_BY_CODE = Object.fromEntries(CURRENCY_DEFS.map(d => [d.code, d]));
   const DEF_BY_FORMATKEY = Object.fromEntries(CURRENCY_DEFS.map(d => [d.formatKey, d]));
