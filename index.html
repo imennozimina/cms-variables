@@ -458,6 +458,116 @@ textarea.promo-values{
   // Helpers
   function cleanToNumberString(s){ return (s || '').replace(/[^0-9]/g,''); }
 
+
+  function parseSmartNumber(raw){
+  if (!raw) return NaN;
+
+  let s = String(raw)
+    .replace(/\u00A0/g, ' ')         // NBSP -> normal space
+    .replace(/[^\d.,\s]/g, '')       // оставить цифры, точку, запятую и пробелы
+    .trim();
+
+  if (!s) return NaN;
+
+  // убираем пробелы между тысячами
+  s = s.replace(/\s+/g, '');
+
+  const commaCount = (s.match(/,/g) || []).length;
+  const dotCount = (s.match(/\./g) || []).length;
+
+  // Если есть и точка, и запятая:
+  // последний разделитель считаем кандидатом на дробную часть,
+  // но только если после него 1–2 цифры.
+  if (commaCount && dotCount) {
+    const lastComma = s.lastIndexOf(',');
+    const lastDot = s.lastIndexOf('.');
+    const lastSep = Math.max(lastComma, lastDot);
+
+    const intPart = s.slice(0, lastSep).replace(/[.,]/g, '');
+    const fracPart = s.slice(lastSep + 1);
+
+    if (/^\d{1,2}$/.test(fracPart)) {
+      return parseFloat(intPart + '.' + fracPart);
+    }
+
+    return parseFloat(s.replace(/[.,]/g, ''));
+  }
+
+  // Только запятая
+  if (commaCount && !dotCount) {
+    const parts = s.split(',');
+
+    // 0,5 / 2,5 / 1,25 -> дробные
+    if (parts.length === 2 && /^\d{1,2}$/.test(parts[1])) {
+      return parseFloat(parts[0] + '.' + parts[1]);
+    }
+
+    // 7,500 / 15,000 -> тысячи
+    return parseFloat(parts.join(''));
+  }
+
+  // Только точка
+  if (dotCount && !commaCount) {
+    const parts = s.split('.');
+
+    // 0.5 / 2.5 / 1.25 -> дробные
+    if (parts.length === 2 && /^\d{1,2}$/.test(parts[1])) {
+      return parseFloat(parts[0] + '.' + parts[1]);
+    }
+
+    // 7.500 / 15.000 -> тысячи
+    return parseFloat(parts.join(''));
+  }
+
+  // Только цифры
+  return parseFloat(s);
+}
+
+function formatNumberSmart(number, useIndian = false){
+  const isInteger = Number.isInteger(number);
+
+  let formatted = number.toLocaleString(
+    useIndian ? 'en-IN' : 'en-US',
+    {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: isInteger ? 0 : 2
+    }
+  );
+
+  // 👉 заменяем точку на запятую только если есть дробная часть
+  if (!isInteger) {
+    formatted = formatted.replace('.', ',');
+  }
+
+  return formatted;
+}
+
+  function formatWithThousandsStyle(number, style = 'space', useIndian = false){
+  const isInteger = Number.isInteger(number);
+
+  // отдельно форматируем целую и дробную часть
+  let intFormatted = Math.trunc(number).toLocaleString(
+    useIndian ? 'en-IN' : 'en-US'
+  );
+
+  if (style === 'space') {
+    intFormatted = intFormatted.replace(/,/g, ' ');
+  } else if (style === 'dot') {
+    intFormatted = intFormatted.replace(/,/g, '.');
+  }
+
+  // если число целое — просто вернуть целую часть
+  if (isInteger) return intFormatted;
+
+  // если есть дробная часть — добавить её через запятую
+  const frac = Math.abs(number % 1)
+    .toFixed(2)
+    .replace(/^0\./, '')
+    .replace(/0+$/, '');
+
+  return frac ? `${intFormatted},${frac}` : intFormatted;
+}
+
   // Formatting functions apply to ACTIVE area only
   function applyCurrency(currency){
     saveState();
@@ -488,29 +598,30 @@ textarea.promo-values{
     }
 
   function formatCurrency(value, currency){
-    const number = parseFloat(String(value).replace(/[^0-9]/g, ''));
-    if (isNaN(number)) return value;
-    switch (currency) {
-      case 'EUR':  return `€ ${number.toLocaleString('en-US').replace(/,/g, ' ')}`;
-      case 'UZS':return `${number.toLocaleString('en-US').replace(/,/g, ' ')} SO’M`;
-      case 'KZT':  return `${number.toLocaleString('en-US').replace(/,/g, ' ')} ₸`;
-      case 'AZN':  return `${number.toLocaleString('en-US').replace(/,/g, ' ')} ₼`;
-      case 'INR':return `${number.toLocaleString('en-IN')} INR`;
-      case 'BDT':return `${number.toLocaleString('en-IN')} BDT`;
-      case 'CLP':return `$ ${number.toLocaleString('en-US').replace(/,/g, ' ')}`;
-      case 'MXN':return `$ ${number.toLocaleString('en-US').replace(/,/g, ' ')}`;
-      case 'CRC':return `₡ ${number.toLocaleString('en-US').replace(/,/g, '.')}`;
-      case 'NIO':return `C$ ${number.toLocaleString('en-US').replace(/,/g, '.')}`;
-      case 'GYD':return `$ ${number.toLocaleString('en-US')}`;
-      case 'GTQ':return `Q${number.toLocaleString('en-US')}`;
-      case 'HNL':return `L ${number.toLocaleString('en-US')}`;
-      case 'BOB':return `Bs ${number.toLocaleString('en-US').replace(/,/g, '.')}`;
-      case 'NGN':return `₦${number.toLocaleString('en-US')}`;
-      case 'KES':return `KSH ${number.toLocaleString('en-US')}`;
-      case 'CDF':return `${number.toLocaleString('en-US').replace(/,/g, ' ')} FC`;
-      default:   return `$ ${number.toLocaleString('en-US').replace(/,/g, ' ')}`;
-    }
+  const number = typeof value === 'number' ? value : parseSmartNumber(value);
+  if (isNaN(number)) return value;
+
+  switch (currency) {
+    case 'EUR':  return `€ ${formatWithThousandsStyle(number, 'space')}`;
+    case 'UZS':  return `${formatWithThousandsStyle(number, 'space')} SO’M`;
+    case 'KZT':  return `${formatWithThousandsStyle(number, 'space')} ₸`;
+    case 'AZN':  return `${formatWithThousandsStyle(number, 'space')} ₼`;
+    case 'INR':  return `${formatNumberSmart(number, true)} INR`;
+    case 'BDT':  return `${formatNumberSmart(number, true)} BDT`;
+    case 'CLP':  return `$ ${formatWithThousandsStyle(number, 'space')}`;
+    case 'MXN':  return `$ ${formatWithThousandsStyle(number, 'space')}`;
+    case 'CRC':  return `₡ ${formatWithThousandsStyle(number, 'dot')}`;
+    case 'NIO':  return `C$ ${formatWithThousandsStyle(number, 'dot')}`;
+    case 'GYD':  return `$ ${formatNumberSmart(number)}`;
+    case 'GTQ':  return `Q${formatNumberSmart(number)}`;
+    case 'HNL':  return `L ${formatNumberSmart(number)}`;
+    case 'BOB':  return `Bs ${formatWithThousandsStyle(number, 'dot')}`;
+    case 'NGN':  return `₦${formatNumberSmart(number)}`;
+    case 'KES':  return `KSH ${formatNumberSmart(number)}`;
+    case 'CDF':  return `${formatWithThousandsStyle(number, 'space')} FC`;
+    default:     return `$ ${formatWithThousandsStyle(number, 'space')}`;
   }
+}
 
   function addText(text){
     saveState();
@@ -836,11 +947,12 @@ function promoConvert(){
 
       mappingKeys.forEach((curKey, i) => {
         const part = parts[i] ?? '';
-        const digits = cleanToNumberString(part);
-        if (!digits){
-          formattedByCurrency[curKey] = '';
+        const parsed = parseSmartNumber(part);
+
+        if (isNaN(parsed)){
+        formattedByCurrency[curKey] = '';
         } else {
-          formattedByCurrency[curKey] = formatCurrency(digits, curKey);
+         formattedByCurrency[curKey] = formatCurrency(part, curKey);
         }
       });
 
@@ -857,7 +969,7 @@ function promoConvert(){
   const multiplierRaw = (document.getElementById('promoMultiplier')?.value || '').trim();
   const multiplier = parseFloat(multiplierRaw.replace(',', '.'));
 
-  if (!multiplier || isNaN(multiplier)) {
+  if (!multiplierRaw || isNaN(multiplier)) {
     promoSetStatus('Введи корректный multiplier.', 'error');
     return;
   }
@@ -877,21 +989,25 @@ function promoConvert(){
         const trimmed = part.trim();
         if (!trimmed) return '';
 
-        const digits = cleanToNumberString(trimmed);
-        if (!digits) return trimmed;
+        const parsed = parseSmartNumber(trimmed);
+        if (isNaN(parsed)) return trimmed;
 
-        const multiplied = Math.round(Number(digits) * multiplier);
+        const multiplied = parsed * multiplier;
 
-        // заменяем первую числовую часть в куске на новое число
-        return trimmed.replace(/[0-9\s.,]+/, String(multiplied));
+        // форматируем число для отображения в строке до Convert:
+        // дробные — с запятой, тысячи — с пробелами
+        const formattedNumber = formatWithThousandsStyle(multiplied, 'space');
+
+        // заменяем первую числовую часть в куске
+        return trimmed.replace(/[0-9][0-9\s.,]*/, formattedNumber);
       })
       .join(' / ');
 
-        input.value = updated;
-        });
+    input.value = updated;
+  });
 
-      promoSetStatus('Multiplier applied ✅', 'ok');
-    }
+  promoSetStatus('Multiplier applied ✅', 'ok');
+}
 
   function promoRenderOutputTable(selectedCurrencyKeys, dataRows){
     promoOutputTable.innerHTML = '';
