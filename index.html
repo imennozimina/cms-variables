@@ -333,14 +333,16 @@ textarea.promo-values{
     { code:'NGN', formatKey:'NGN',label:'NGN',     tournamentBtn:'NGN', promoLabel:'NGN' },
     { code:'KES', formatKey:'KES',label:'KES',   tournamentBtn:'KES', promoLabel:'KES' },
     { code:'CDF', formatKey:'CDF',label:'CDF',    tournamentBtn:'CDF', promoLabel:'CDF' },
+    { code:'RUB', formatKey:'RUB', label:'RUB', tournamentBtn:'RUB', promoLabel:'RUB' },
+    { code:'KGS', formatKey:'KGS', label:'KGS', tournamentBtn:'KGS', promoLabel:'KGS' },
   ];
 
   // Order for tournament toolbar (buttons) — keep your original order.
-  const TOURNAMENT_TOOLBAR_ORDER = ['USD','KZT','AZN','UZS','INR','BDT','CLP','MXN','CRC','NIO','GYD','GTQ','HNL','BOB','NGN','KES','CDF'];
+  const TOURNAMENT_TOOLBAR_ORDER = ['USD','KZT','AZN','UZS','INR','BDT','CLP','MXN','CRC','NIO','GYD','GTQ','HNL','BOB','NGN','KES','CDF','RUB','KGS'];
 
   // Order for promo checkboxes + CSV header — taken from the admin template.
   // IMPORTANT: mapping order is still "how user checked the boxes"; this is only fixed output/CSV order.
-  const PROMO_FIXED_ORDER = ['USD','KZT','AZN','UZS','INR','BDT','CLP','MXN','CRC','NIO','GYD','GTQ','HNL','BOB','NGN','KES','CDF'];
+  const PROMO_FIXED_ORDER = ['USD','KZT','AZN','UZS','INR','BDT','CLP','MXN','CRC','NIO','GYD','GTQ','HNL','BOB','NGN','KES','CDF','RUB','KGS'];
 
   const DEF_BY_CODE = Object.fromEntries(CURRENCY_DEFS.map(d => [d.code, d]));
   const DEF_BY_FORMATKEY = Object.fromEntries(CURRENCY_DEFS.map(d => [d.formatKey, d]));
@@ -604,6 +606,8 @@ function formatNumberSmart(number, useIndian = false){
     case 'EUR':  return `€ ${formatWithThousandsStyle(number, 'space')}`;
     case 'UZS':  return `${formatWithThousandsStyle(number, 'space')} SO’M`;
     case 'KZT':  return `${formatWithThousandsStyle(number, 'space')} ₸`;
+    case 'RUB':  return `${formatWithThousandsStyle(number, 'space')} ₽`;
+    case 'KGS':  return `${formatWithThousandsStyle(number, 'space')} ⊆`;
     case 'AZN':  return `${formatWithThousandsStyle(number, 'space')} ₼`;
     case 'INR':  return `${formatNumberSmart(number, true)} INR`;
     case 'BDT':  return `${formatNumberSmart(number, true)} BDT`;
