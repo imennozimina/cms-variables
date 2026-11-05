@@ -316,7 +316,6 @@ textarea.promo-values{
   // formatKey must match what formatCurrency() expects (switch cases): '$', '€', 'UZS', '₸', etc.
   const CURRENCY_DEFS = [
     { code:'USD', formatKey:'USD',  label:'USD',     tournamentBtn:'USD',   promoLabel:'USD' },
-    { code:'EUR', formatKey:'EUR',  label:'EUR',     tournamentBtn:'EUR',   promoLabel:'EUR' },
     { code:'KZT', formatKey:'KZT',  label:'KZT',     tournamentBtn:'KZT',   promoLabel:'KZT' },
     { code:'AZN', formatKey:'AZN',  label:'AZN',     tournamentBtn:'AZN',   promoLabel:'AZN' },
     { code:'UZS', formatKey:'UZS',label:'UZS',  tournamentBtn:'UZS', promoLabel:'UZS' },
@@ -324,25 +323,23 @@ textarea.promo-values{
     { code:'BDT', formatKey:'BDT',label:'BDT',         tournamentBtn:'BDT', promoLabel:'BDT' },
     { code:'CLP', formatKey:'CLP',label:'CLP',     tournamentBtn:'CLP', promoLabel:'CLP' },
     { code:'MXN', formatKey:'MXN',label:'MXN',     tournamentBtn:'MXN', promoLabel:'MXN' },
-    { code:'CRC', formatKey:'CRC',label:'CRC',     tournamentBtn:'CRC', promoLabel:'CRC' },
     { code:'NIO', formatKey:'NIO',label:'NIO',    tournamentBtn:'NIO', promoLabel:'NIO' },
-    { code:'GYD', formatKey:'GYD',label:'GYD',     tournamentBtn:'GYD', promoLabel:'GYD' },
     { code:'GTQ', formatKey:'GTQ',label:'GTQ',     tournamentBtn:'GTQ', promoLabel:'GTQ' },
     { code:'HNL', formatKey:'HNL',label:'HNL',     tournamentBtn:'HNL', promoLabel:'HNL' },
     { code:'BOB', formatKey:'BOB',label:'BOB',    tournamentBtn:'BOB', promoLabel:'BOB' },
     { code:'NGN', formatKey:'NGN',label:'NGN',     tournamentBtn:'NGN', promoLabel:'NGN' },
     { code:'KES', formatKey:'KES',label:'KES',   tournamentBtn:'KES', promoLabel:'KES' },
     { code:'CDF', formatKey:'CDF',label:'CDF',    tournamentBtn:'CDF', promoLabel:'CDF' },
-    { code:'RUB', formatKey:'RUB', label:'RUB', tournamentBtn:'RUB', promoLabel:'RUB' },
     { code:'KGS', formatKey:'KGS', label:'KGS', tournamentBtn:'KGS', promoLabel:'KGS' },
+    { code:'TJS', formatKey:'TJS', label:'TJS', tournamentBtn:'TJS', promoLabel:'TJS' },
   ];
 
   // Order for tournament toolbar (buttons) — keep your original order.
-  const TOURNAMENT_TOOLBAR_ORDER = ['USD','KZT','AZN','UZS','INR','BDT','CLP','MXN','CRC','NIO','GYD','GTQ','HNL','BOB','NGN','KES','CDF','RUB','KGS'];
+  const TOURNAMENT_TOOLBAR_ORDER = ['USD','KZT','AZN','UZS','INR','BDT','CLP','MXN','NIO','GTQ','HNL','BOB','NGN','KES','CDF','KGS','TJS'];
 
   // Order for promo checkboxes + CSV header — taken from the admin template.
   // IMPORTANT: mapping order is still "how user checked the boxes"; this is only fixed output/CSV order.
-  const PROMO_FIXED_ORDER = ['USD','KZT','AZN','UZS','INR','BDT','CLP','MXN','CRC','NIO','GYD','GTQ','HNL','BOB','NGN','KES','CDF','RUB','KGS'];
+  const PROMO_FIXED_ORDER = ['USD','KZT','AZN','UZS','INR','BDT','CLP','MXN','NIO','GTQ','HNL','BOB','NGN','KES','CDF','KGS','TJS'];
 
   const DEF_BY_CODE = Object.fromEntries(CURRENCY_DEFS.map(d => [d.code, d]));
   const DEF_BY_FORMATKEY = Object.fromEntries(CURRENCY_DEFS.map(d => [d.formatKey, d]));
@@ -603,19 +600,16 @@ function formatNumberSmart(number, useIndian = false){
   if (isNaN(number)) return value;
 
   switch (currency) {
-    case 'EUR':  return `€ ${formatWithThousandsStyle(number, 'space')}`;
     case 'UZS':  return `${formatWithThousandsStyle(number, 'space')} SO’M`;
     case 'KZT':  return `${formatWithThousandsStyle(number, 'space')} ₸`;
-    case 'RUB':  return `${formatWithThousandsStyle(number, 'space')} ₽`;
     case 'KGS':  return `${formatWithThousandsStyle(number, 'space')} ⊆`;
+    case 'TJS':  return `${formatWithThousandsStyle(number, 'space')} SM`;
     case 'AZN':  return `${formatWithThousandsStyle(number, 'space')} ₼`;
     case 'INR':  return `${formatNumberSmart(number, true)} INR`;
     case 'BDT':  return `${formatNumberSmart(number, true)} BDT`;
     case 'CLP':  return `$ ${formatWithThousandsStyle(number, 'space')}`;
     case 'MXN':  return `$ ${formatWithThousandsStyle(number, 'space')}`;
-    case 'CRC':  return `₡ ${formatWithThousandsStyle(number, 'dot')}`;
     case 'NIO':  return `C$ ${formatWithThousandsStyle(number, 'dot')}`;
-    case 'GYD':  return `$ ${formatNumberSmart(number)}`;
     case 'GTQ':  return `Q${formatNumberSmart(number)}`;
     case 'HNL':  return `L ${formatNumberSmart(number)}`;
     case 'BOB':  return `Bs ${formatWithThousandsStyle(number, 'dot')}`;
